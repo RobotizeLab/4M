@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mahtab's Learning Zone</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:"Comic Sans MS","Chalkboard SE",sans-serif;background:linear-gradient(#7fd8ff,#c9f0ff 60%,#b8f08a 60%);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cloud{position:fixed;font-size:70px;animation:drift 30s linear infinite;opacity:.9}
+@keyframes drift{from{transform:translateX(-150px)}to{transform:translateX(110vw)}}
+.card{position:relative;z-index:2;background:#fff;border:6px solid #ffb703;border-radius:32px;padding:20px;width:min(660px,94vw);max-height:98vh;overflow:auto;text-align:center;box-shadow:0 12px 0 #fb8500,0 20px 40px rgba(0,0,0,.25)}
+h1{margin:0 0 6px;color:#e63946;font-size:2.2rem}
+.btn{font:inherit;font-size:1.3rem;font-weight:bold;color:#fff;background:#06d6a0;border:none;border-radius:20px;padding:10px 26px;cursor:pointer;box-shadow:0 6px 0 #049a75;margin:8px}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #049a75}
+.home{background:#8d99ae;box-shadow:0 6px 0 #5c677d}
+.hidden{display:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.tile{font:inherit;font-weight:bold;font-size:1.1rem;color:#fff;border:none;border-radius:18px;padding:12px 8px;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.25);line-height:1.25;text-decoration:none;display:block}
+.tile span{font-size:2.2rem;display:block}
+.tile small{display:block;font-size:.78rem;font-weight:normal;opacity:.95}
+.tile:hover{transform:scale(1.04)}
+.tile:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.tile:last-child:nth-child(odd){grid-column:span 2}
+.hud{display:flex;justify-content:space-between;font-size:1.05rem;font-weight:bold;color:#444;margin-bottom:8px;gap:6px}
+.bar{height:18px;background:#eee;border-radius:12px;overflow:hidden;margin-bottom:12px}
+.bar div{height:100%;width:100%;background:#06d6a0;transition:width .1s linear,background .3s}
+.qbox{font-size:1.5rem;font-weight:bold;color:#222;margin:8px 0;line-height:1.35}
+.qbox svg{max-width:100%;height:auto}
+.read{font-size:1.4rem;background:#fff;border:3px solid #ffb703;border-radius:50%;width:46px;height:46px;cursor:pointer;vertical-align:middle;margin-left:6px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.opt{font:inherit;font-size:1.35rem;font-weight:bold;color:#fff;border:none;border-radius:20px;padding:14px 8px;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.25);word-break:break-word}
+.opt:nth-child(1){background:#ef476f}.opt:nth-child(2){background:#118ab2}.opt:nth-child(3){background:#9b5de5}.opt:nth-child(4){background:#f77f00}
+.opt.right,.chip.right{background:#06d6a0!important;animation:pop .4s}
+.opt.wrong{background:#555!important;animation:shake .4s}
+@keyframes pop{50%{transform:scale(1.15)}}
+@keyframes shake{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.msg{min-height:2.2rem;font-size:1.2rem;font-weight:bold;margin-top:10px}
+input.ans{font:inherit;font-size:1.8rem;text-align:center;width:90%;max-width:360px;padding:10px;border:4px solid #118ab2;border-radius:18px;outline:none}
+.slotrow,.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;min-height:56px}
+.slotrow{background:#eef7ff;border:3px dashed #118ab2;border-radius:16px;padding:8px}
+.chip{font:inherit;font-size:1.3rem;font-weight:bold;color:#fff;background:#118ab2;border:none;border-radius:14px;padding:9px 14px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.chip.used{opacity:.25;pointer-events:none}
+.letters{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+.letters b{background:#ffd6e0;color:#d00060;border-radius:10px;padding:6px 12px;font-size:1.8rem}
+.bigico{font-size:5rem}
+.snd{position:fixed;top:12px;right:12px;z-index:5}
+.snd button{font-size:1.5rem;width:50px;height:50px;border-radius:50%;border:4px solid #ffb703;background:#fff;cursor:pointer;box-shadow:0 4px 0 #fb8500}
+.snd button.off{opacity:.45;filter:grayscale(1)}
+</style>
+</head>
+<body>
+<div class="cloud" style="top:5%">☁️</div>
+<div class="cloud" style="top:20%;animation-delay:-12s">☁️</div>
+<div class="cloud" style="top:35%;animation-delay:-22s">☁️</div>
+<div class="snd"><button id="sndBtn" title="Sound and voice" onclick="toggleSnd()">🔊</button></div>
+
+<div class="card">
+  <div id="home">
+    <div class="bigico">📚🦉</div>
+    <h1>Learning Zone</h1>
+    <p style="margin:4px;font-size:1.1rem"><b>Practice time. Pick a subject!</b></p>
+    <div class="grid" id="subjects"></div>
+    <a class="btn home" href="Mahtab.html" style="text-decoration:none;display:inline-block">⬅ Math</a>
+  </div>
+
+  <div id="topics" class="hidden">
+    <h1 id="subTitle"></h1>
+    <p style="margin:4px;font-size:1.1rem">10 questions each. <b>Choose a topic:</b></p>
+    <div class="grid" id="topicGrid"></div>
+    <button class="btn home" onclick="show('home')">⬅ Back</button>
+  </div>
+
+  <div id="game" class="hidden">
+    <div class="hud"><span>Q <span id="qn">1</span>/10</span><span id="tname"></span><span>⏱ <span id="time">30</span>s</span><span>⭐ <span id="score">0</span></span></div>
+    <div class="bar"><div id="bar"></div></div>
+    <div id="qarea"></div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div id="end" class="hidden">
+    <div class="bigico" id="trophy">🏆</div>
+    <h1>Well done!</h1><div id="endt" style="font-size:1.1rem;font-weight:bold"></div>
+    <div style="font-size:2.6rem" id="stars"></div>
+    <p style="font-size:1.8rem;margin:6px">You scored <b id="final"></b> / 10</p>
+    <p style="font-size:1.2rem" id="comment"></p>
+    <button class="btn" onclick="startTopic(curTopic)">🔄 Play Again</button>
+    <button class="btn home" onclick="openSubject(curSub)">📋 Topics</button>
+    <button class="btn home" onclick="show('home')">🏠 Home</button>
+  </div>
+</div>
+
+<script>
+const TOTAL=10;
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[rnd(0,a.length-1)];
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const L=s=>s.trim().split('\n').map(x=>x.trim()).filter(Boolean);
+
+/* ---------- sound + voice ---------- */
+const AC=window.AudioContext||window.webkitAudioContext;
+let ac,sndOn=true,unlocked=false;
+function ctx(){try{ac=ac||new AC();if(ac.state!=='running')ac.resume();return ac}catch(e){return null}}
+function silentUrl(){
+  const n=4410,b=new ArrayBuffer(44+n*2),v=new DataView(b);
+  const w=(o,s)=>[...s].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,'RIFF');v.setUint32(4,36+n*2,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,22050,true);v.setUint32(28,44100,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n*2,true);
+  return URL.createObjectURL(new Blob([b],{type:'audio/wav'}));
+}
+function unlock(){
+  const a=ctx();if(!a)return;
+  try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
+  if(unlocked)return;
+  try{const s=a.createBufferSource();s.buffer=a.createBuffer(1,1,22050);s.connect(a.destination);s.start(0)}catch(e){}
+  try{const el=new Audio(silentUrl());el.loop=true;el.volume=.01;const p=el.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}
+  if(a.state==='running')unlocked=true;
+}
+['pointerdown','touchstart','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,unlock,{passive:true}));
+function tone(f,d,type='sine',vol=.15,delay=0){
+  const a=ctx();if(!a)return;
+  const t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();
+  o.type=type;o.frequency.setValueAtTime(f,t);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05);
+}
+const sfx={
+  click(){if(sndOn)tone(700,.08,'triangle',.12)},
+  good(){if(sndOn)[523,659,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.18,i*.09))},
+  bad(){if(sndOn){tone(300,.25,'sawtooth',.1);tone(200,.4,'sawtooth',.1,.18)}},
+  tick(){if(sndOn)tone(1000,.06,'square',.06)},
+  end(s){if(sndOn)(s>=2?[523,659,784,1047,784,1047,1319]:s===1?[523,659,784,659,784]:[784,659,523]).forEach((f,i)=>tone(f,.3,'triangle',.18,i*.13))}
+};
+function say(t){
+  if(!sndOn||!window.speechSynthesis)return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;u.pitch=1.1;u.lang='en-US';speechSynthesis.speak(u)}catch(e){}
+}
+const plain=h=>h.replace(/<svg[\s\S]*?<\/svg>/g,' ').replace(/<br>/g,'. ').replace(/<[^>]+>/g,'').replace(/___/g,'blank').replace(/\s+/g,' ').trim();
+function toggleSnd(){ctx();sndOn=!sndOn;$('sndBtn').textContent=sndOn?'🔊':'🔇';$('sndBtn').classList.toggle('off',!sndOn);if(!sndOn&&window.speechSynthesis)speechSynthesis.cancel();else sfx.click()}
+document.addEventListener('click',e=>{if(e.target.closest('.tile,.btn'))sfx.click()});
+
+/* ---------- generic builders ---------- */
+function bankMC(lines,o={}){
+  let deck=[];
+  return()=>{
+    if(!deck.length)deck=shuf(lines);
+    const [q,a,...w]=deck.pop().split('|');
+    const set=new Set([a]);
+    shuf(w).forEach(x=>{if(set.size<4)set.add(x)});
+    if(o.fill!==false)for(const l of shuf(lines)){if(set.size>=4)break;const x=l.split('|')[1];if(x!==a)set.add(x)}
+    return{t:'mc',q,a,opts:shuf([...set])};
+  };
+}
+function fixedMC(pairs,opts,qf){
+  let deck=[];
+  return()=>{if(!deck.length)deck=shuf(pairs);const [x,a]=deck.pop();return{t:'mc',q:qf(x),a,opts:[...opts],say:null}};
+}
+
+/* ---------- SPELLING ---------- */
+const W2=`about after again all always animal any around ask away back because been before best big black blue boy bring brown call came carry clean cold color come could day dear does done door down draw drink each early eat every fall far fast find first five fly food four friend from funny gave girl give going good great green grow happy have help here home house jump keep kind know last left light little long look made make many more much must name never night now off old once only open over own pick play please pretty pull put read right round said saw see seven should sing sit sleep small some soon stop take tell thank that their them then these they think this today together tree under upon use very walk want warm wash water week were what when where which white who why will wish with work would write year yellow your`.split(/\s+/);
+const W3=`able across against also answer area asked balloon basket beautiful believe beside between bicycle birthday body bottom bought breakfast bright brother build busy button candy captain careful castle cause center certain change chicken children circle city class climb clothes cloud country cousin crowd daughter decide different dinner discover doctor dollar double during earth enough evening everyone exercise explain family favorite finally flower follow forest forget forward garden gentle giant glass ground group guess guide half happen heavy history hospital hundred hungry idea important island jewel journey kitchen knew knife knock ladder laugh learn leave library listen machine marble measure medicine middle minute mirror money monkey morning mountain mouth moving music nature neighbor nothing notice number ocean office orange paper parent party people picture piece planet pocket police potato probably problem promise purple question quick quiet quite rabbit reason remember return river rocket school science second secret shadow shoulder simple sister smooth snowman someone special spring square station stomach straight strange street strong summer surprise sweater table teacher terrible thousand through thunder tomorrow touch toward travel trouble truck turtle uncle unhappy until usual vacation valley village visit voice weather weight whale whisper window winter wonder world wrong young`.split(/\s+/);
+const ALLW=new Set([...W2,...W3]);
+const WALL=[...ALLW];
+function misspell(w){
+  const out=new Set();let t=0;
+  while(out.size<3&&t++<80){
+    const s=w.split(''),r=rnd(0,4),i=rnd(1,s.length-1);
+    if(r===0&&s.length>3)[s[i-1],s[i]]=[s[i],s[i-1]];
+    else if(r===1&&s.length>3)s.splice(i,1);
+    else if(r===2)s.splice(i,0,s[i-1]);
+    else if(r===3){const idx=s.map((c,k)=>'aeiou'.includes(c)?k:-1).filter(k=>k>=0);if(idx.length){const k=pick(idx);s[k]=pick('aeiou'.split('').filter(x=>x!==s[k]))}}
+    else s.splice(i,0,pick('aeiou'.split('')));
+    const m=s.join('');if(m!==w&&!ALLW.has(m))out.add(m);
+  }
+  let k=0;while(out.size<3)out.add(w+'e'.repeat(++k));
+  return[...out];
+}
+function wordDeck(list){let d=[];return()=>{if(!d.length)d=shuf(list);return d.pop()}}
+const spellRight=list=>{const nx=wordDeck(list);return()=>{const w=nx();return{t:'mc',q:'Which is spelled <b>correctly</b>?',a:w,opts:shuf([w,...misspell(w)]),say:'Which is spelled correctly?'}}};
+const spellListen=list=>{const nx=wordDeck(list);return()=>{const w=nx();return{t:'type',q:'👂 Listen and <b>type the word</b>',a:w,speakWord:w,say:w}}};
+const spellScramble=list=>{const nx=wordDeck(list.filter(w=>w.length>=4));return()=>{const w=nx();let s=w;for(let i=0;i<20&&s===w;i++)s=shuf(w.split('')).join('');return{t:'type',q:'Unscramble the letters:<div class="letters">'+s.split('').map(c=>`<b>${c.toUpperCase()}</b>`).join('')+'</div>',a:w,say:'Unscramble the letters. '+s.split('').join(', ')}}};
+
+/* ---------- SENTENCES ---------- */
+const BUILD=L(`
+The cat sat on the mat.
+I like to eat apples.
+My dog runs in the park.
+We go to school every day.
+The sun is bright today.
+She has a red balloon.
+Birds fly in the sky.
+Can you help me?
+Please close the door.
+We played soccer after lunch.
+My mom made a big cake.
+The frog jumped into the pond.
+Our teacher reads us a story.
+He rides his bike to school.
+The little puppy is sleeping.
+I saw a rainbow after the rain.
+They are building a sandcastle.
+What is your favorite color?
+Grandma baked cookies for us.
+The stars shine at night.
+My brother plays the drums.
+Look at the beautiful butterfly!
+We planted flowers in the garden.
+The train goes very fast.`);
+function buildGen(){
+  let d=[];
+  return()=>{if(!d.length)d=shuf(BUILD);const s=d.pop(),words=s.split(' ');
+    let t=shuf(words);for(let i=0;i<10&&t.join(' ')===s;i++)t=shuf(words);
+    return{t:'build',q:'Tap the words to build the sentence 🧩',words:t,a:s,say:'Put the words in order to make a sentence.'}};
+}
+const S_CORRECT=bankMC(L(`
+Which sentence is written <b>correctly</b>?|The dog ran fast.|the dog ran fast.|The dog ran fast|The Dog ran fast.
+Which sentence is written <b>correctly</b>?|Where do you live?|where do you live?|Where do you live.|Where do you live
+Which sentence is written <b>correctly</b>?|We like pizza.|we like pizza|We Like pizza.|we like Pizza.
+Which sentence is written <b>correctly</b>?|Is it raining outside?|is it raining outside.|Is it raining outside|is it raining outside?
+Which sentence is written <b>correctly</b>?|My sister is eight years old.|my sister is eight years old|My Sister is eight years old.|My sister is eight years old
+Which sentence is written <b>correctly</b>?|I can't find my shoes.|I cant find my shoes.|i can't find my shoes.|I can't find my shoes
+Which sentence is written <b>correctly</b>?|Tom and I went to the zoo.|Me and Tom went to the zoo.|tom and I went to the zoo.|Tom and I went to the zoo
+Which sentence is written <b>correctly</b>?|She doesn't like spiders.|She don't like spiders.|she doesn't like spiders.|She doesnt like spiders.
+Which sentence is written <b>correctly</b>?|The boys are playing outside.|The boys is playing outside.|the boys are playing outside.|The boys are playing outside
+Which sentence is written <b>correctly</b>?|We saw two cats.|We seen two cats.|we saw two cats.|We saw two cats
+Which sentence is written <b>correctly</b>?|He has a new bike.|He have a new bike.|he has a new bike.|He has a new bike
+Which sentence is written <b>correctly</b>?|They were happy.|They was happy.|they were happy.|They were happy`),{fill:false});
+const S_FILL=bankMC(L(`
+Fill in the blank:<br>The cat ___ on the sofa.|sleeps|sleep|sleeped|sleepy
+Fill in the blank:<br>I ___ a new pencil.|have|has|having|haves
+Fill in the blank:<br>She ___ to the store yesterday.|went|go|goes|going
+Fill in the blank:<br>The flowers are very ___.|pretty|prettily|prettiest|pret
+Fill in the blank:<br>We ___ playing a game.|are|is|am|be
+Fill in the blank:<br>Tom ___ his lunch every day.|eats|eat|eating|eaten
+Fill in the blank:<br>There ___ three birds in the tree.|are|is|am|be
+Fill in the blank:<br>My brother and I ___ happy.|are|is|am|be
+Fill in the blank:<br>He ___ the ball high.|threw|throw|thrown|throwed
+Fill in the blank:<br>I would like ___ apple.|an|a|and|on
+Fill in the blank:<br>___ you like ice cream?|Do|Does|Is|Are
+Fill in the blank:<br>The puppy ___ loudly yesterday.|barked|bark|barks|barking
+Fill in the blank:<br>She is ___ than her sister.|taller|tall|tallest|more tall
+Fill in the blank:<br>This is the ___ cake ever!|best|good|better|goodest
+Fill in the blank:<br>Please give the book ___ me.|to|too|two|tu
+Fill in the blank:<br>I ___ my coat because it was cold.|wore|wear|wears|worn`),{fill:false});
+const KINDS=[["The sky is blue.","Statement"],["What is your name?","Question"],["Close the window.","Command"],["Wow, that is huge!","Exclamation"],["I love to read.","Statement"],["Where is my hat?","Question"],["Please sit down.","Command"],["We won the game!","Exclamation"],["How old are you?","Question"],["Wash your hands.","Command"],["Dogs are loyal.","Statement"],["That was amazing!","Exclamation"],["Can I play outside?","Question"],["Pick up your toys.","Command"],["It is raining.","Statement"],["Look out!","Exclamation"]];
+const S_KIND=fixedMC(KINDS,['Statement','Question','Command','Exclamation'],x=>`What kind of sentence is this?<br>“${x}”`);
+const COMPLETE=[["The dog barked.","Yes"],["My mom drives a car.","Yes"],["We ate lunch.","Yes"],["Birds can fly.","Yes"],["She is my friend.","Yes"],["The baby is sleeping.","Yes"],["Ran down the hill.","No"],["The big red ball.","No"],["Because it was raining.","No"],["In the park.","No"],["My best friend.","No"],["Jumped over the fence.","No"]];
+const S_COMPLETE=fixedMC(COMPLETE,['Yes','No'],x=>`Is this a <b>complete sentence</b>?<br>“${x}”`);
+
+/* ---------- LANGUAGE ARTS ---------- */
+const LA={
+ parts:L(`
+Find the <b>verb</b>:<br>“The bird sings a song.”|sings|bird|song|The
+Find the <b>verb</b>:<br>“We jump over the puddle.”|jump|puddle|over|We
+Find the <b>verb</b>:<br>“Mom bakes a cake.”|bakes|Mom|cake|a
+Find the <b>verb</b>:<br>“The kids play outside.”|play|kids|outside|The
+Find the <b>verb</b>:<br>“A frog hops on the log.”|hops|frog|log|on
+Find the <b>verb</b>:<br>“She reads a book.”|reads|She|book|a
+Find the <b>noun</b>:<br>“The happy dog barks.”|dog|happy|barks|The
+Find the <b>noun</b>:<br>“We ate red apples.”|apples|ate|red|We
+Find the <b>noun</b>:<br>“A tall tree grows.”|tree|tall|grows|A
+Find the <b>noun</b>:<br>“She kicked the ball.”|ball|kicked|She|the
+Find the <b>adjective</b>:<br>“The big bear sleeps.”|big|bear|sleeps|The
+Find the <b>adjective</b>:<br>“I see a purple flower.”|purple|see|flower|I
+Find the <b>adjective</b>:<br>“Soft snow fell down.”|Soft|snow|fell|down
+Find the <b>adjective</b>:<br>“He wore a warm coat.”|warm|wore|coat|He`),
+ plural:L(`
+One fox, two ___|foxes|foxs|foxies|foxen
+One box, two ___|boxes|boxs|boxies|boxen
+One child, two ___|children|childs|childrens|childes
+One mouse, two ___|mice|mouses|mices|mouse
+One man, two ___|men|mans|mens|manes
+One foot, two ___|feet|foots|feets|footes
+One tooth, two ___|teeth|tooths|teeths|toothes
+One baby, two ___|babies|babys|babyes|babyies
+One leaf, two ___|leaves|leafs|leafes|leavs
+One dish, two ___|dishes|dishs|dishies|dishen
+One wolf, two ___|wolves|wolfs|wolfes|wolvs
+One bus, two ___|buses|buss|busies|busen
+One goose, two ___|geese|gooses|geeses|goose
+One story, two ___|stories|storys|storyes|storyies
+One dress, two ___|dresses|dresss|dressies|dressen
+One woman, two ___|women|womans|womens|womanes
+One sheep, two ___|sheep|sheeps|sheepes|sheepen`),
+ opp:L(`
+The opposite of <b>hot</b> is…|cold|big|red|soft
+The opposite of <b>up</b> is…|down|over|top|high
+The opposite of <b>happy</b> is…|sad|glad|funny|kind
+The opposite of <b>day</b> is…|night|noon|light|sun
+The opposite of <b>fast</b> is…|slow|quick|run|late
+The opposite of <b>open</b> is…|closed|wide|empty|door
+The opposite of <b>hard</b> is…|soft|rock|heavy|loud
+The opposite of <b>full</b> is…|empty|big|round|wet
+The opposite of <b>light</b> (not dark) is…|dark|bright|day|white
+The opposite of <b>young</b> is…|old|small|new|baby
+The opposite of <b>near</b> is…|far|close|next|here
+The opposite of <b>wet</b> is…|dry|cold|rain|water
+The opposite of <b>tall</b> is…|short|big|long|thin
+The opposite of <b>first</b> is…|last|second|early|one`),
+ syn:L(`
+Which word means the <b>same</b> as <b>big</b>?|large|tiny|cold|soft
+Which word means the <b>same</b> as <b>small</b>?|tiny|huge|tall|loud
+Which word means the <b>same</b> as <b>happy</b>?|glad|angry|tired|slow
+Which word means the <b>same</b> as <b>fast</b>?|quick|slow|late|heavy
+Which word means the <b>same</b> as <b>begin</b>?|start|end|stop|finish
+Which word means the <b>same</b> as <b>pretty</b>?|beautiful|ugly|plain|rough
+Which word means the <b>same</b> as <b>shout</b>?|yell|whisper|sing|sleep
+Which word means the <b>same</b> as <b>tired</b>?|sleepy|silly|excited|hungry
+Which word means the <b>same</b> as <b>smart</b>?|clever|silly|slow|shy
+Which word means the <b>same</b> as <b>rock</b>?|stone|water|sand|leaf
+Which word means the <b>same</b> as <b>unhappy</b>?|sad|glad|proud|brave
+Which word means the <b>same</b> as <b>jump</b>?|leap|crawl|sit|walk`),
+ homo:L(`
+Choose the right word:<br>I can ___ a bird in the tree.|see|sea|said|sew
+Choose the right word:<br>Put your coat over ___.|there|their|they're|thare
+Choose the right word:<br>The kids lost ___ toys.|their|there|they're|thare
+Choose the right word:<br>___ going to the park.|They're|There|Their|Theyre
+Choose the right word:<br>I ___ a letter to Grandma.|write|right|rite|wright
+Choose the right word:<br>Turn ___ at the corner.|right|write|rite|wright
+Choose the right word:<br>I ___ pizza last night.|ate|eight|eat|at
+Choose the right word:<br>We have ___ cats.|two|to|too|tow
+Choose the right word:<br>I want to go ___.|too|two|to|tue
+Choose the right word:<br>We swam in the ___.|sea|see|sey|sie
+Choose the right word:<br>The ___ ran fast.|hare|hair|here|hear
+Choose the right word:<br>I ___ you calling.|hear|here|hair|hare
+Choose the right word:<br>Come ___ now!|here|hear|hair|hare
+Choose the right word:<br>Dad will ___ the bread.|buy|by|bye|bie
+Choose the right word:<br>Wave ___, Grandma!|bye|buy|by|bie`),
+ past:L(`
+Yesterday, I ___ to school.|walked|walk|walking|walks
+Last week we ___ pizza.|ate|eat|eaten|eating
+She ___ a picture yesterday.|drew|draw|drawed|drawn
+He ___ the ball to me.|threw|throw|throwed|thrown
+They ___ a song at the show.|sang|sing|singed|sung
+Mom ___ a cake for my birthday.|baked|bake|baking|bakes
+I ___ my homework last night.|did|do|doed|done
+The bird ___ away.|flew|fly|flyed|flown
+We ___ to the zoo on Saturday.|went|go|goed|gone
+He ___ a big fish.|caught|catch|catched|catching
+The dog ___ the bone last week.|buried|bury|burys|burying
+I ___ the answer already.|knew|know|knowed|known`),
+ comp:L(`
+<b>rain + bow</b> makes…|rainbow|bowrain|rainboe|rainbough
+<b>sun + flower</b> makes…|sunflower|flowersun|sunflowr|sunflour
+<b>foot + ball</b> makes…|football|ballfoot|footbal|fotball
+<b>cup + cake</b> makes…|cupcake|cakecup|cupcak|cupcaik
+<b>butter + fly</b> makes…|butterfly|flybutter|butterfli|buterfly
+<b>note + book</b> makes…|notebook|booknote|notebuk|notbook
+<b>pop + corn</b> makes…|popcorn|cornpop|popcorm|pupcorn
+<b>snow + man</b> makes…|snowman|mansnow|snowmen|snoman
+<b>air + plane</b> makes…|airplane|planeair|airplain|erplane
+<b>tooth + brush</b> makes…|toothbrush|brushtooth|toothbrus|tuthbrush
+<b>star + fish</b> makes…|starfish|fishstar|starfich|stairfish
+<b>bed + room</b> makes…|bedroom|roombed|bedrum|bedrome`),
+ cap:L(`
+Which is written <b>correctly</b>?|We visited Sioux Falls on Monday.|we visited Sioux Falls on Monday.|We visited sioux falls on monday.|We visited Sioux falls on monday.
+Which is written <b>correctly</b>?|My teacher, Mrs. Lee, is kind.|my teacher, mrs. Lee, is kind.|My Teacher, Mrs. Lee, is Kind.|My teacher, mrs. lee, is kind.
+Which is written <b>correctly</b>?|In July, Tom went to Florida.|in july, tom went to florida.|In july, Tom went to Florida.|In July, tom went to florida.
+Which is written <b>correctly</b>?|I like to play with Ben.|i like to play with ben.|I like to play with ben.|i like to play with Ben.
+Which is written <b>correctly</b>?|Our class visited Mount Rushmore.|our class visited mount rushmore.|Our class visited mount Rushmore.|Our Class visited Mount Rushmore.
+Which is written <b>correctly</b>?|Aunt Sara lives in Texas.|aunt sara lives in texas.|Aunt sara lives in texas.|Aunt Sara lives in texas.`),
+ cont:L(`
+The contraction for <b>do not</b> is…|don't|do'nt|dont|d'ont
+The contraction for <b>can not</b> is…|can't|cann't|cant|ca'nt
+The contraction for <b>I am</b> is…|I'm|Im|I'am|Ia'm
+The contraction for <b>it is</b> is…|it's|its|i't's|it'is
+The contraction for <b>is not</b> is…|isn't|is'nt|isnt|isn'nt
+The contraction for <b>we are</b> is…|we're|were|w'ere|we'are
+The contraction for <b>they are</b> is…|they're|their|there|theyr'e
+The contraction for <b>did not</b> is…|didn't|did'nt|didnt|didn'nt
+The contraction for <b>she is</b> is…|she's|shes|sh'es|she'is
+The contraction for <b>will not</b> is…|won't|willn't|wont|wo'nt
+The contraction for <b>let us</b> is…|let's|lets|le'ts|let'us`),
+ end:L(`
+Which end mark? <br>“What time is it___”|?|.|!|,
+Which end mark? <br>“I like my new bike___”|.|?|,|;
+Which end mark? <br>“Watch out___”|!|?|,|;
+Which end mark? <br>“Where do you live___”|?|.|!|,
+Which end mark? <br>“Wow, we won the game___”|!|?|,|;
+Which end mark? <br>“My cat is sleeping___”|.|?|!|,
+Which end mark? <br>“How are you today___”|?|.|!|,
+Which end mark? <br>“Please close the door___”|.|?|,|;`)
+};
+
+/* ---------- GEOMETRY ---------- */
+const poly=(n,r,rot)=>Array.from({length:n},(_,i)=>{const a=(rot+360*i/n)*Math.PI/180;return(70+r*Math.cos(a)).toFixed(1)+','+(70+r*Math.sin(a)).toFixed(1)}).join(' ');
+const SHAPES=[
+ {n:'triangle',s:3,p:poly(3,62,-90)},{n:'square',s:4,p:'22,22 118,22 118,118 22,118'},{n:'rectangle',s:4,p:'8,35 132,35 132,105 8,105'},
+ {n:'pentagon',s:5,p:poly(5,62,-90)},{n:'hexagon',s:6,p:poly(6,62,0)},{n:'octagon',s:8,p:poly(8,64,-67.5)},
+ {n:'rhombus',s:4,p:'70,8 128,70 70,132 12,70'},{n:'trapezoid',s:4,p:'40,30 100,30 132,110 8,110'},{n:'circle',s:0}];
+const COLS=['#ef476f','#118ab2','#9b5de5','#f77f00','#06d6a0','#ffb703'];
+const shapeSvg=sh=>{const c=pick(COLS);return `<svg width="150" height="150" viewBox="0 0 140 140">${sh.n==='circle'?`<circle cx="70" cy="70" r="60" fill="${c}" stroke="#333" stroke-width="3"/>`:`<polygon points="${sh.p}" fill="${c}" stroke="#333" stroke-width="3" stroke-linejoin="round"/>`}</svg>`};
+const near=(n,lo,hi)=>{const s=new Set([n]);let t=0;while(s.size<4&&t++<60){const v=n+rnd(-3,3);if(v>=lo&&v<=hi)s.add(v)}for(let v=lo;s.size<4;v++)s.add(v);return shuf([...s]).map(String)};
+const G={
+ shape(){const sh=pick(SHAPES),names=shuf(SHAPES.filter(x=>x!==sh)).slice(0,3).map(x=>x.n);
+  return{t:'mc',q:'What is the name of this shape?<br>'+shapeSvg(sh),a:sh.n,opts:shuf([sh.n,...names]),say:'What is the name of this shape?'}},
+ sides(){const sh=pick(SHAPES.filter(x=>x.s));return{t:'mc',q:'How many <b>sides</b> does this shape have?<br>'+shapeSvg(sh),a:String(sh.s),opts:near(sh.s,3,9),say:'How many sides does this shape have?'}},
+ vert(){const sh=pick(SHAPES.filter(x=>x.s));return{t:'mc',q:'How many <b>corners (vertices)</b> does this shape have?<br>'+shapeSvg(sh),a:String(sh.s),opts:near(sh.s,3,9),say:'How many corners does this shape have?'}},
+ peri(){
+  if(Math.random()<.6){const w=rnd(2,9),h=rnd(2,9),a=2*(w+h);
+   return{t:'mc',q:`Find the <b>perimeter</b>:<br><svg width="220" height="150" viewBox="0 0 220 150"><rect x="30" y="30" width="150" height="80" fill="#ffe6a7" stroke="#333" stroke-width="3"/><text x="105" y="22" text-anchor="middle" font-size="18" font-weight="bold">${w} cm</text><text x="190" y="75" font-size="18" font-weight="bold">${h} cm</text></svg>`,a:String(a),opts:near(a,4,40),say:`Find the perimeter of a rectangle that is ${w} centimeters by ${h} centimeters.`};}
+  const a=rnd(3,9),b=rnd(3,9),c=rnd(3,9),p=a+b+c;
+  return{t:'mc',q:`Find the <b>perimeter</b> of the triangle:<br><svg width="220" height="150" viewBox="0 0 220 150"><polygon points="110,15 200,125 20,125" fill="#d0f4de" stroke="#333" stroke-width="3"/><text x="45" y="62" font-size="17" font-weight="bold">${a}</text><text x="172" y="62" font-size="17" font-weight="bold">${b}</text><text x="105" y="145" font-size="17" font-weight="bold">${c}</text></svg>`,a:String(p),opts:near(p,6,30),say:`Find the perimeter of the triangle with sides ${a}, ${b} and ${c}.`};
+ },
+ area(){const w=rnd(2,6),h=rnd(2,5),a=w*h,s=32;let r='';
+  for(let i=0;i<w;i++)for(let j=0;j<h;j++)r+=`<rect x="${5+i*s}" y="${5+j*s}" width="${s}" height="${s}" fill="#bde0fe" stroke="#118ab2" stroke-width="2"/>`;
+  return{t:'mc',q:`Each square is <b>1 square unit</b>. What is the <b>area</b>?<br><svg width="${w*s+10}" height="${h*s+10}">${r}</svg><br>${w} × ${h}`,a:String(a),opts:near(a,2,36),say:`Each square is one square unit. The shape is ${w} squares wide and ${h} squares tall. What is the area?`}},
+ frac(){const n=pick([2,3,4,6,8]),k=rnd(1,n-1);let sl='';
+  for(let i=0;i<n;i++){const a0=(i/n)*2*Math.PI-Math.PI/2,a1=((i+1)/n)*2*Math.PI-Math.PI/2,x0=70+60*Math.cos(a0),y0=70+60*Math.sin(a0),x1=70+60*Math.cos(a1),y1=70+60*Math.sin(a1);
+   sl+=`<path d="M70,70 L${x0.toFixed(1)},${y0.toFixed(1)} A60,60 0 ${1/n>.5?1:0} 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${i<k?'#ef476f':'#fff'}" stroke="#333" stroke-width="3"/>`}
+  const a=k+'/'+n,s=new Set([a,(n-k)+'/'+n,k+'/'+(n+1),(k+1)+'/'+n,k+'/'+(n-1)]);
+  const o=[a];for(const x of shuf([...s])){if(o.length<4&&x!==a&&!x.endsWith('/0')&&!x.endsWith('/1'))o.push(x)}
+  let z=2;while(o.length<4){const x=k+'/'+(n+z++);if(!o.includes(x))o.push(x)}
+  return{t:'mc',q:'What <b>fraction</b> of the circle is shaded?<br><svg width="150" height="150" viewBox="0 0 140 140">'+sl+'</svg>',a,opts:shuf(o),say:'What fraction of the circle is shaded?'}},
+ solid:bankMC(L(`
+A <b>ball</b> is shaped like a…|sphere|cube|cone|cylinder
+A <b>dice</b> is shaped like a…|cube|sphere|cone|cylinder
+An <b>ice cream cone</b> is shaped like a…|cone|cube|sphere|pyramid
+A <b>can of soup</b> is shaped like a…|cylinder|cube|cone|sphere
+A <b>tissue box</b> is shaped like a…|rectangular prism|sphere|cone|cylinder
+The <b>pyramids of Egypt</b> are shaped like a…|pyramid|cube|cylinder|sphere
+How many <b>faces</b> does a cube have?|6|4|8|12
+How many <b>corners</b> does a cube have?|8|6|4|12
+How many <b>edges</b> does a cube have?|12|6|8|4
+A <b>cylinder</b> has how many flat faces?|2|1|3|0
+A <b>sphere</b> has how many flat faces?|0|1|2|6`)),
+ lines:bankMC(L(`
+The corner of a book makes a ___ angle.|right|acute|obtuse|straight
+An angle <b>smaller</b> than a right angle is…|acute|obtuse|right|straight
+An angle <b>bigger</b> than a right angle is…|obtuse|acute|right|tiny
+Lines that never touch, like train tracks, are…|parallel|crossing|curved|angled
+Lines that cross to make a right angle are…|perpendicular|parallel|curved|equal
+How many degrees are in a right angle?|90|180|45|60
+Which shape has <b>no</b> straight sides?|circle|square|triangle|hexagon
+A triangle with <b>all sides equal</b> is…|equilateral|scalene|curved|round
+Which shape has <b>4 equal sides and 4 right angles</b>?|square|triangle|circle|pentagon
+How many sides does a <b>quadrilateral</b> have?|4|3|5|6
+Two equal halves that match when folded show…|symmetry|perimeter|area|volume
+Which letter has a <b>line of symmetry</b>?|A|F|G|R`))
+};
+
+/* ---------- SCIENCE ---------- */
+const SCI={
+ animals:bankMC(L(`
+Which group does a <b>frog</b> belong to?|Amphibian|Mammal|Reptile|Bird
+Which group does a <b>whale</b> belong to?|Mammal|Fish|Reptile|Bird
+Which group does an <b>eagle</b> belong to?|Bird|Mammal|Fish|Reptile
+Which group does a <b>snake</b> belong to?|Reptile|Amphibian|Mammal|Bird
+Which group does a <b>salmon</b> belong to?|Fish|Mammal|Bird|Reptile
+Which group does a <b>butterfly</b> belong to?|Insect|Bird|Mammal|Fish
+Which animal has <b>feathers</b>?|Owl|Cat|Snake|Frog
+Which animal gives <b>milk</b> to its babies?|Cow|Hen|Frog|Shark
+What do <b>herbivores</b> eat?|Plants|Only meat|Rocks|Sand
+A <b>tadpole</b> grows into a…|frog|fish|turtle|snake
+Which animal is a <b>carnivore</b>?|Lion|Cow|Rabbit|Deer
+Which animal <b>hibernates</b> in winter?|Bear|Horse|Duck|Dog
+How many legs does an <b>insect</b> have?|6|4|8|10
+How many legs does a <b>spider</b> have?|8|6|4|10`)),
+ plants:bankMC(L(`
+Which part takes in <b>water</b> from the soil?|Roots|Leaves|Flower|Seed
+Which part makes <b>food</b> using sunlight?|Leaves|Roots|Stem|Seed
+What does a plant need to grow?|Sunlight, water and air|Only sugar|Only darkness|Only sand
+Which part <b>holds the plant up</b>?|Stem|Petal|Seed|Fruit
+A new plant begins as a…|seed|rock|feather|shell
+The colorful part that makes seeds is the…|flower|root|stem|soil
+Which of these is a <b>fruit</b>?|Apple|Carrot|Potato|Lettuce
+Plants make their own food. This is called…|photosynthesis|hibernation|migration|evaporation
+Which gas do plants give off?|Oxygen|Smoke|Helium|Steam
+Which is a <b>root</b> we eat?|Carrot|Apple|Tomato|Corn`)),
+ matter:bankMC(L(`
+Ice is a…|solid|liquid|gas|flame
+Water is a…|liquid|solid|gas|metal
+Steam is water as a…|gas|solid|liquid|metal
+When ice gets warm, it…|melts|freezes|grows|burns
+When water gets very cold, it…|freezes|melts|burns|grows
+Which tool measures <b>temperature</b>?|Thermometer|Ruler|Scale|Clock
+Which tool measures <b>weight</b>?|Scale|Ruler|Thermometer|Calendar
+Which tool measures <b>length</b>?|Ruler|Scale|Thermometer|Clock
+Liquid water turning into water vapor is…|evaporation|freezing|melting|erosion
+Which object will <b>float</b> in water?|Wooden block|Rock|Coin|Key
+Which is a <b>source of light</b>?|Sun|Moon|Mirror|Rock
+Sound is made by…|vibrations|colors|magnets|shadows`)),
+ force:bankMC(L(`
+A <b>magnet</b> attracts…|iron|wood|paper|plastic
+What pulls objects toward the Earth?|Gravity|Wind|Magnet|Light
+A push or a pull is called a…|force|habitat|season|seed
+Kicking a ball is a…|push|pull|float|melt
+Pulling a wagon is a…|pull|push|spin|melt
+Which has the <b>most friction</b>?|Sandpaper|Ice|Glass|Soap
+Our main source of light and heat is the…|Sun|Moon|Earth|Cloud
+Which uses <b>electricity</b>?|Lamp|Book|Spoon|Rock
+Which would a magnet pick up?|Paper clip|Eraser|Leaf|Crayon
+A ball rolls fastest on a…|smooth floor|thick carpet|sandy beach|muddy field`)),
+ space:bankMC(L(`
+Which planet do we live on?|Earth|Mars|Venus|Jupiter
+Which planet is called the <b>Red Planet</b>?|Mars|Earth|Venus|Saturn
+Which planet has big <b>rings</b>?|Saturn|Mars|Earth|Mercury
+Which is the <b>biggest</b> planet?|Jupiter|Earth|Mars|Venus
+The planet <b>closest to the Sun</b> is…|Mercury|Earth|Neptune|Saturn
+How many planets are in our solar system?|8|7|9|10
+What does the <b>Moon</b> go around?|Earth|Sun|Mars|Venus
+Earth takes one year to go around the…|Sun|Moon|Mars|Saturn
+<b>Day and night</b> happen because Earth…|spins|stops|melts|grows
+The Sun is a…|star|planet|moon|comet
+Which season is the <b>coldest</b>?|Winter|Summer|Spring|Fall
+The outer layer of Earth is the…|crust|core|cloud|moon
+Most of Earth is covered by…|water|sand|ice|forest`)),
+ weather:bankMC(L(`
+Clouds are made of tiny drops of…|water|smoke|milk|sand
+Rain, snow and hail are called…|precipitation|evaporation|erosion|gravity
+A tool that measures <b>rain</b> is a…|rain gauge|thermometer|compass|ruler
+Water going up into the air as vapor is…|evaporation|condensation|precipitation|collection
+Water vapor turning into clouds is…|condensation|evaporation|melting|freezing
+Which tool shows the <b>wind direction</b>?|Weather vane|Thermometer|Rain gauge|Scale
+A strong spinning storm cloud is a…|tornado|rainbow|breeze|fog
+What do we see after rain with sunshine?|Rainbow|Eclipse|Comet|Volcano
+Which weather is <b>very windy</b>?|Gusty|Calm|Foggy|Still
+Frozen rain that falls as balls of ice is…|hail|fog|dew|mist`)),
+ body:bankMC(L(`
+We <b>see</b> with our…|eyes|ears|nose|hands
+We <b>hear</b> with our…|ears|eyes|nose|tongue
+We <b>smell</b> with our…|nose|eyes|ears|hands
+The <b>tongue</b> helps us…|taste|smell|see|hear
+How many senses do people have?|5|3|7|10
+Which organ <b>pumps blood</b>?|Heart|Brain|Lungs|Stomach
+We <b>breathe</b> with our…|lungs|heart|bones|skin
+Which part helps us <b>think</b>?|Brain|Heart|Stomach|Elbow
+What do <b>bones</b> do?|Support the body|Make sounds|Make food|Hold water
+Which food helps build <b>strong bones</b>?|Milk and cheese|Candy|Soda|Chips
+Which is a <b>healthy habit</b>?|Washing hands|Skipping sleep|Never exercising|Eating only candy
+We feel hot and cold with our…|skin|eyes|ears|teeth`)),
+ habitat:bankMC(L(`
+A <b>polar bear</b> lives in the…|Arctic|Desert|Rainforest|Savanna
+A <b>camel</b> lives in the…|desert|Arctic|ocean|pond
+<b>Monkeys</b> live mostly in the…|rainforest|desert|Arctic|prairie
+In a food chain, plants are the…|producers|consumers|decomposers|predators
+An animal that hunts other animals is a…|predator|producer|plant|seed
+The animal that is hunted is the…|prey|predator|producer|sun
+Where does the energy in a food chain start?|Sun|Rock|Wind|Moon
+Fish get oxygen using…|gills|lungs|wings|feathers
+Animals that no longer live on Earth are…|extinct|hungry|young|wild
+Which animal lives in a <b>pond</b>?|Frog|Camel|Polar bear|Monkey
+<b>Camouflage</b> helps an animal…|hide|fly|sing|swim
+Which animal builds a <b>hive</b>?|Bee|Fish|Cow|Frog`))
+};
+
+/* ---------- SOCIAL STUDIES ---------- */
+const SS={
+ helpers:bankMC(L(`
+Who <b>puts out fires</b>?|Firefighter|Teacher|Baker|Farmer
+Who <b>helps sick people</b>?|Doctor|Mail carrier|Pilot|Chef
+Who <b>delivers mail</b>?|Mail carrier|Librarian|Dentist|Builder
+Who <b>teaches</b> students at school?|Teacher|Police officer|Farmer|Baker
+Who keeps us <b>safe</b> and helps enforce laws?|Police officer|Chef|Artist|Farmer
+Who <b>grows crops</b>?|Farmer|Dentist|Pilot|Judge
+Who takes care of our <b>teeth</b>?|Dentist|Librarian|Baker|Mechanic
+Who helps you find <b>books</b>?|Librarian|Plumber|Pilot|Baker
+Who <b>fixes cars</b>?|Mechanic|Teacher|Nurse|Singer
+Who <b>flies airplanes</b>?|Pilot|Plumber|Chef|Farmer
+Who <b>builds houses</b>?|Builder|Doctor|Dentist|Artist
+Who <b>bakes bread</b>?|Baker|Farmer|Pilot|Judge`)),
+ civics:bankMC(L(`
+Why do we have <b>rules</b>?|To keep us safe and fair|To make us sad|To be bossy|To skip school
+Who is the leader of the <b>United States</b>?|The President|The Mayor|The Principal|The Coach
+Who is the leader of a <b>city</b>?|Mayor|President|Principal|Coach
+Who is the leader of a <b>school</b>?|Principal|Mayor|President|Governor
+Who is the leader of a <b>state</b>?|Governor|Mayor|Principal|Teacher
+Picking a leader by voting is an…|election|recess|vacation|holiday
+Which is a <b>good citizen</b>?|Helps clean the park|Litters|Ignores rules|Breaks things
+<b>Laws</b> are…|rules for everyone in a community|songs|games|gifts
+The U.S. flag has 50 of these:|stars|stripes|eagles|moons
+How many <b>stripes</b> are on the U.S. flag?|13|50|7|10`)),
+ maps:bankMC(L(`
+Which direction is <b>opposite North</b>?|South|East|West|Up
+Which direction is <b>opposite East</b>?|West|North|South|Down
+A map <b>key (legend)</b> shows…|what symbols mean|the weather|the time|prices
+A <b>compass</b> shows…|directions|time|weather|temperature
+A <b>globe</b> is a model of…|Earth|the Moon|the Sun|Mars
+The imaginary line around the middle of Earth is the…|Equator|compass|border|key
+The <b>top</b> of a map usually points…|North|South|East|West
+Which tool helps you <b>find your way</b>?|Map|Spoon|Pencil|Clock
+The sun <b>rises</b> in the…|East|West|North|South
+The sun <b>sets</b> in the…|West|East|North|South`)),
+ world:bankMC(L(`
+How many <b>continents</b> are there?|7|5|9|10
+Which is the <b>largest ocean</b>?|Pacific|Atlantic|Indian|Arctic
+Which continent is the <b>USA</b> on?|North America|Europe|Asia|Africa
+Which continent is <b>coldest</b> and covered in ice?|Antarctica|Africa|Asia|Australia
+<b>Kangaroos</b> live in…|Australia|Europe|Antarctica|South America
+The <b>Amazon Rainforest</b> is in…|South America|Africa|Europe|Antarctica
+The <b>pyramids of Egypt</b> are in…|Africa|Asia|Europe|North America
+Which is the <b>biggest continent</b>?|Asia|Africa|Europe|Australia
+Which ocean is between North America and Europe?|Atlantic|Pacific|Indian|Arctic
+How many <b>oceans</b> are there?|5|3|7|4
+Which country is <b>north</b> of the USA?|Canada|Mexico|Brazil|China
+Which country is <b>south</b> of the USA?|Mexico|Canada|Brazil|Spain`)),
+ usa:bankMC(L(`
+What is the <b>capital</b> of the United States?|Washington, D.C.|New York|Los Angeles|Chicago
+What is the <b>capital</b> of South Dakota?|Pierre|Sioux Falls|Rapid City|Aberdeen
+Which mountain has <b>four presidents</b> carved in it?|Mount Rushmore|Mount Everest|Pikes Peak|Mount Fuji
+Sioux Falls is a city in which state?|South Dakota|North Dakota|Iowa|Nebraska
+How many <b>states</b> are in the USA?|50|48|52|13
+Who was the <b>first U.S. President</b>?|George Washington|Abraham Lincoln|Thomas Jefferson|John Adams
+Which president is on the <b>penny</b>?|Abraham Lincoln|George Washington|Thomas Jefferson|Theodore Roosevelt
+The <b>Statue of Liberty</b> is a symbol of…|freedom|winter|sports|food
+South Dakota's state bird is the…|ring-necked pheasant|bald eagle|robin|cardinal
+Which river runs through <b>South Dakota</b>?|Missouri River|Nile River|Amazon River|Thames River
+Which bird is the <b>national bird</b> of the USA?|Bald eagle|Owl|Pheasant|Parrot
+What do we celebrate on <b>July 4th</b>?|Independence Day|Halloween|Thanksgiving|Easter`)),
+ econ:bankMC(L(`
+Something you must have to live is a…|need|want|toy|game
+Food and water are…|needs|wants|toys|games
+A new video game is a…|want|need|rule|law
+Money you earn from a job is…|income|a border|a rule|a map
+A person who <b>buys</b> things is a…|consumer|producer|farmer|judge
+A person who <b>makes</b> goods is a…|producer|consumer|customer|buyer
+Trading things <b>without money</b> is…|bartering|voting|mapping|shopping
+<b>Saving</b> money means…|keeping some for later|spending it all|losing it|giving it all away
+Which is a <b>service</b>?|Haircut|Apple|Shoes|Toy car
+Which is a <b>good</b> (not a service)?|Bicycle|Haircut|Teaching|Singing`)),
+ history:bankMC(L(`
+Who was <b>Martin Luther King Jr.</b>?|A civil rights leader|The first president|An astronaut|A sailor
+On <b>Thanksgiving</b>, families often…|share a meal and give thanks|go trick-or-treating|watch fireworks|plant trees
+Which holiday honors people who <b>served in the military</b>?|Veterans Day|Valentine's Day|Easter|Halloween
+Who sailed across the ocean in <b>1492</b>?|Christopher Columbus|George Washington|Abraham Lincoln|Neil Armstrong
+Who was the <b>first person on the Moon</b>?|Neil Armstrong|Christopher Columbus|Abraham Lincoln|George Washington
+Which came <b>first</b>?|Horse and buggy|Car|Airplane|Rocket
+A <b>timeline</b> shows…|events in order|the weather|a map|prices
+<b>Rosa Parks</b> refused to give up her…|bus seat|lunch|hat|bike
+<b>Abraham Lincoln</b> was the…|16th President|1st President|governor of Texas|astronaut
+Native Americans lived in North America…|long before settlers came|after cars were made|only last week|after phones`)),
+ land:bankMC(L(`
+A body of land <b>surrounded by water</b> is an…|island|lake|valley|mountain
+A very tall landform is a…|mountain|valley|plain|beach
+Low land between mountains is a…|valley|hill|island|peak
+Flat land is called a…|plain|mountain|volcano|canyon
+Water <b>surrounded by land</b> is a…|lake|island|peninsula|ocean
+A very dry place with little rain is a…|desert|rainforest|swamp|pond
+Where the land meets the ocean is the…|coast|mountain|desert|prairie
+A hot, rainy forest is a…|rainforest|desert|tundra|prairie
+Flat, grassy land in the middle of America is the…|prairie|rainforest|beach|glacier
+A natural stream of flowing water is a…|river|road|bridge|canyon`))
+};
+
+/* ---------- SUBJECTS ---------- */
+const T=(id,name,icon,make,time)=>({id,name,icon,make,time});
+const SUBJECTS={
+ spelling:{name:'Spelling',icon:'✏️',color:'#ef476f',topics:[
+  T(0,'Right spelling','👀',()=>spellRight(WALL)),T(1,'Listen & spell','👂',()=>spellListen(WALL)),T(2,'Unscramble','🔀',()=>spellScramble(WALL))]},
+ sentences:{name:'Sentences',icon:'📝',color:'#118ab2',topics:[
+  T(0,'Build the sentence','🧩',buildGen),T(1,'Written correctly?','✅',()=>S_CORRECT),T(2,'Fill in the blank','🔤',()=>S_FILL),
+  T(3,'Kinds of sentences','❓',()=>S_KIND),T(4,'Complete or not?','🧐',()=>S_COMPLETE)]},
+ language:{name:'Language Arts',icon:'📖',color:'#9b5de5',topics:[
+  T(0,'Nouns, verbs & adjectives','🏷️',()=>bankMC(LA.parts,{fill:false})),T(1,'Plurals','👯',()=>bankMC(LA.plural,{fill:false})),
+  T(2,'Opposites','↔️',()=>bankMC(LA.opp,{fill:false})),T(3,'Synonyms','🟰',()=>bankMC(LA.syn,{fill:false})),
+  T(4,'Homophones','👂',()=>bankMC(LA.homo,{fill:false})),T(5,'Past tense','⏪',()=>bankMC(LA.past,{fill:false})),
+  T(6,'Compound words','🔗',()=>bankMC(LA.comp,{fill:false})),T(7,'Capital letters','🔠',()=>bankMC(LA.cap,{fill:false})),
+  T(8,'Contractions','✂️',()=>bankMC(LA.cont,{fill:false})),T(9,'End marks','❗',()=>bankMC(LA.end,{fill:false}))]},
+ geometry:{name:'Geometry',icon:'📐',color:'#f77f00',topics:[
+  T(0,'Name the shape','🔷',()=>G.shape),T(1,'Sides','📏',()=>G.sides),T(2,'Corners','📍',()=>G.vert),
+  T(3,'Perimeter','🧵',()=>G.peri,45),T(4,'Area','🟦',()=>G.area,45),T(5,'Fractions of a shape','🍕',()=>G.frac),
+  T(6,'3D shapes','🎲',()=>G.solid),T(7,'Lines & angles','📐',()=>G.lines)]},
+ science:{name:'Science',icon:'🔬',color:'#06d6a0',topics:[
+  T(0,'Animals','🦁',()=>SCI.animals),T(1,'Plants','🌱',()=>SCI.plants),T(2,'Matter & measuring','🧊',()=>SCI.matter),
+  T(3,'Forces & energy','🧲',()=>SCI.force),T(4,'Earth & space','🪐',()=>SCI.space),T(5,'Weather & water','🌦️',()=>SCI.weather),
+  T(6,'Human body','🫀',()=>SCI.body),T(7,'Habitats & food chains','🐻‍❄️',()=>SCI.habitat)]},
+ social:{name:'Social Studies',icon:'🌎',color:'#3a86ff',topics:[
+  T(0,'Community helpers','👩‍🚒',()=>SS.helpers),T(1,'Rules & leaders','🏛️',()=>SS.civics),T(2,'Maps & directions','🧭',()=>SS.maps),
+  T(3,'Continents & oceans','🌍',()=>SS.world),T(4,'USA & South Dakota','🇺🇸',()=>SS.usa),T(5,'Needs, wants & money','💰',()=>SS.econ),
+  T(6,'History & heroes','📜',()=>SS.history),T(7,'Landforms','⛰️',()=>SS.land)]}
+};
+
+/* ---------- screens + flow ---------- */
+let curSub='spelling',curTopic=0,gen=null,qn=0,score=0,cur=null,timer=null,left=0,LIMIT=30,locked=false,lastTick=-1;
+function show(id){
+  clearInterval(timer);if(window.speechSynthesis)speechSynthesis.cancel();
+  ['home','topics','game','end'].forEach(s=>$(s).classList.toggle('hidden',s!==id));
+}
+$('subjects').innerHTML=Object.entries(SUBJECTS).map(([k,s])=>`<button class="tile" style="background:${s.color}" onclick="openSubject('${k}')"><span>${s.icon}</span>${s.name}</button>`).join('');
+function openSubject(k){
+  curSub=k;const S=SUBJECTS[k];
+  $('subTitle').textContent=S.icon+' '+S.name;
+  $('topicGrid').innerHTML=S.topics.map((t,i)=>`<button class="tile" style="background:${['#ef476f','#118ab2','#9b5de5','#f77f00','#06d6a0','#3a86ff'][i%6]}" onclick="startTopic(${i})"><span>${t.icon}</span>${t.name}</button>`).join('');
+  show('topics');
+}
+function startTopic(i){
+  curTopic=i;const t=SUBJECTS[curSub].topics[i];
+  gen=t.make();$('tname').textContent=t.icon+' '+t.name;
+  qn=0;score=0;$('score').textContent=0;show('game');nextQ();
+}
+function nextQ(){
+  if(qn>=TOTAL)return finish();
+  qn++;locked=false;$('qn').textContent=qn;$('msg').textContent='';
+  cur=gen();
+  LIMIT=SUBJECTS[curSub].topics[curTopic].time||(cur.t==='mc'?30:cur.t==='type'?45:60);
+  const A=$('qarea');
+  const qHtml=`<div class="qbox">${cur.q} <button class="read" title="Read to me" onclick="readQ()">🔊</button></div>`;
+  if(cur.t==='mc'){
+    A.innerHTML=qHtml+'<div class="opts" id="opts"></div>';
+    cur.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o;b.onclick=()=>chooseMC(b,o);$('opts').appendChild(b)});
+  }else if(cur.t==='type'){
+    A.innerHTML=qHtml+'<input class="ans" id="ans" autocomplete="off" autocapitalize="none" spellcheck="false"><br><button class="btn" onclick="checkType()">✔ Check</button>';
+    $('ans').addEventListener('keydown',e=>{if(e.key==='Enter')checkType()});
+    if(!/Mobi|Android/i.test(navigator.userAgent))$('ans').focus();
+  }else{
+    A.innerHTML=qHtml+'<div class="slotrow" id="slot"></div><div class="chips" id="chips"></div><button class="btn home" onclick="clearBuild()">↺ Clear</button><button class="btn" onclick="checkBuild()">✔ Check</button>';
+    cur.picked=[];
+    cur.words.forEach((w,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=w;b.onclick=()=>pickWord(i,b);b.id='w'+i;$('chips').appendChild(b)});
+  }
+  startTimer();
+  setTimeout(readQ,250);
+}
+function readQ(){
+  if(!cur)return;
+  if(cur.speakWord){say(cur.speakWord);return}
+  say(cur.say||plain(cur.q)+(cur.t==='mc'&&!cur.say?'. '+cur.opts.join('. '):''));
+}
+function startTimer(){
+  clearInterval(timer);left=LIMIT;lastTick=-1;upd();
+  timer=setInterval(()=>{left-=.1;upd();if(left<=0){clearInterval(timer);timeout()}},100);
+}
+function upd(){
+  const t=Math.max(0,left);$('time').textContent=Math.ceil(t);
+  const bar=$('bar');bar.style.width=(t/LIMIT*100)+'%';
+  const f=t/LIMIT;bar.style.background=f>.5?'#06d6a0':f>.25?'#ffb703':'#ef476f';
+  if(t<=5&&Math.ceil(t)!==lastTick){lastTick=Math.ceil(t);if(t>0)sfx.tick()}
+}
+function result(ok,shown){
+  locked=true;clearInterval(timer);
+  if(ok){score++;$('score').textContent=score;$('msg').textContent='🎉 Great job!';$('msg').style.color='#06a077';sfx.good()}
+  else{$('msg').textContent='😢 Oops! Answer: '+shown;$('msg').style.color='#d62839';sfx.bad()}
+  setTimeout(nextQ,ok?1300:2400);
+}
+function chooseMC(btn,o){
+  if(locked)return;
+  const ok=o===cur.a;btn.classList.add(ok?'right':'wrong');
+  if(!ok)[...$('opts').children].forEach(b=>{if(b.textContent===cur.a)b.classList.add('right')});
+  result(ok,cur.a);
+}
+function checkType(){
+  if(locked)return;const v=$('ans').value.trim().toLowerCase();if(!v)return;
+  result(v===cur.a,cur.a);
+}
+function pickWord(i,b){
+  if(locked)return;cur.picked.push(i);b.classList.add('used');
+  const s=document.createElement('button');s.className='chip';s.style.background='#9b5de5';s.textContent=cur.words[i];s.dataset.i=i;
+  s.onclick=()=>{if(locked)return;cur.picked=cur.picked.filter(x=>x!==i);s.remove();$('w'+i).classList.remove('used')};
+  $('slot').appendChild(s);
+}
+function clearBuild(){if(locked)return;cur.picked=[];$('slot').innerHTML='';[...$('chips').children].forEach(c=>c.classList.remove('used'))}
+function checkBuild(){
+  if(locked)return;if(cur.picked.length!==cur.words.length)return;
+  result(cur.picked.map(i=>cur.words[i]).join(' ')===cur.a,cur.a);
+}
+function timeout(){
+  if(locked)return;locked=true;sfx.bad();
+  $('msg').textContent="⏰ Time's up! Answer: "+cur.a;$('msg').style.color='#d62839';
+  if(cur.t==='mc')[...$('opts').children].forEach(b=>{if(b.textContent===cur.a)b.classList.add('right')});
+  setTimeout(nextQ,2600);
+}
+function finish(){
+  show('end');
+  const S=SUBJECTS[curSub],t=S.topics[curTopic];
+  $('endt').textContent=S.icon+' '+S.name+' · '+t.name;$('final').textContent=score;
+  const s=score>=9?3:score>=6?2:score>=3?1:0;sfx.end(s);
+  $('stars').textContent='⭐'.repeat(s)+'☆'.repeat(3-s);
+  $('trophy').textContent=s===3?'🏆':s===2?'🥈':s===1?'🥉':'🌱';
+  $('comment').textContent=['Keep practicing, you can do it! 💪','Good try! 🙂','Great work! 👏','Amazing! You are a star! 🌟'][s];
+}
+if(location.hash&&SUBJECTS[location.hash.slice(1)])openSubject(location.hash.slice(1));
+</script>
+</body>
+</html>

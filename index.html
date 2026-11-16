@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Who is playing?</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:20px;
+ font-family:"Comic Sans MS","Chalkboard SE",Arial,sans-serif;text-align:center;overflow:hidden;
+ background:linear-gradient(#8ecae6,#bde0fe 60%,#b7e4c7 60%)}
+h1{margin:0;font-size:clamp(2rem,8vw,3.2rem);color:#023047;text-shadow:2px 2px #fff}
+p{margin:0;color:#035;font-size:1.2rem}
+.profiles{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;z-index:2}
+a.card{width:min(300px,86vw);padding:24px 16px;border-radius:30px;text-decoration:none;color:#fff;
+ box-shadow:0 8px 0 rgba(0,0,0,.2),0 14px 24px rgba(0,0,0,.15);transition:transform .15s}
+a.card:active{transform:translateY(6px);box-shadow:0 2px 0 rgba(0,0,0,.2)}
+a.card:hover{transform:scale(1.04)}
+.av{font-size:6rem;line-height:1.1;animation:bob 2.2s ease-in-out infinite}
+.nm{font-size:2.2rem;font-weight:bold;margin:4px 0}
+.ds{font-size:1.1rem;opacity:.95}
+.mahtab{background:linear-gradient(160deg,#3a86ff,#8338ec)}
+.musab{background:linear-gradient(160deg,#ff9f1c,#ef476f)}
+.fl{position:fixed;font-size:2.2rem;opacity:.7;animation:fly linear infinite;z-index:1;pointer-events:none}
+@keyframes bob{50%{transform:translateY(-10px) rotate(4deg)}}
+@keyframes fly{from{transform:translateY(105vh) rotate(0)}to{transform:translateY(-15vh) rotate(360deg)}}
+</style>
+</head>
+<body>
+<h1>👋 Who is playing?</h1>
+<p>Pick your profile</p>
+<div class="profiles">
+  <a class="card mahtab" href="Mahtab.html">
+    <div class="av">🧑‍🚀</div><div class="nm">Mahtab</div><div class="ds">🚀 🔬 🌍 📖 Learn &amp; Explore</div>
+  </a>
+  <a class="card musab" href="Musab.html">
+    <div class="av">🐣</div><div class="nm">Musab</div><div class="ds">📞 🏠 🔤 🔢 Learn &amp; Play</div>
+  </a>
+</div>
+<script>
+['⭐','🎈','🌈','🦋','☁️','🍭','🚀','🌟'].forEach((e,i)=>{
+  const d=document.createElement('div');d.className='fl';d.textContent=e;
+  d.style.left=(5+i*12)+'vw';d.style.animationDuration=(9+i*1.3)+'s';d.style.animationDelay=(-i*2)+'s';
+  document.body.appendChild(d);
+});
+</script>
+</body>
+</html>
